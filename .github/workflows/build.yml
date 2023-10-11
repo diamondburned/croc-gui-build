@@ -17,7 +17,7 @@ jobs:
 
       # Force cross-compilation.
       # TODO: fix this by tricking Nix.
-      - run: export NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1
+      - run: echo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 >> $GITHUB_ENV
 
       - uses: diamondburned/cache-install@main
         with:
