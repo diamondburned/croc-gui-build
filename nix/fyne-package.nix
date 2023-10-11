@@ -52,7 +52,6 @@ let
 		'';
 	
 		buildPhase = ''
-			set -x
 			fyne package --executable $pname --os $GOOS ${escapedArgs}
 			if [[ ! -f $outFile ]]; then
 				echo "fyne package failed to produce $outFile"
