@@ -35,34 +35,37 @@ let
 			inherit GOOS GOARCH;
 		};
 	};
+
+	out = buildGoModule {
+		inherit pname outFile version src vendorSha256 GOOS GOARCH;
+	
+		buildInputs = with pkgs; [ ] ++ buildInputs;
+	
+		nativeBuildInputs = with pkgs; [
+			go
+			fyne
+			pkg-config
+		];
+	
+		patchPhase = ''
+			rm Makefile
+		'';
+	
+		buildPhase = ''
+			set -x
+			fyne package --executable $pname --os $GOOS ${escapedArgs}
+			if [[ ! -f $outFile ]]; then
+				echo "fyne package failed to produce $outFile"
+				ls -la
+				exit 1
+			fi
+		'';
+	
+		installPhase = ''
+			install -Dm755 $outFile $out/$outFile
+		'';
+	};
 in
-
-buildGoModule {
-	inherit pname outFile version src vendorSha256 GOOS GOARCH;
-
-	buildInputs = with pkgs; [ ] ++ buildInputs;
-
-	nativeBuildInputs = with pkgs; [
-		go
-		fyne
-		pkg-config
-	];
-
-	patchPhase = ''
-		rm Makefile
-	'';
-
-	buildPhase = ''
-		set -x
-		fyne package --executable $pname --os $GOOS ${escapedArgs}
-		if [[ ! -f $outFile ]]; then
-			echo "fyne package failed to produce $outFile"
-			ls -la
-			exit 1
-		fi
-	'';
-
-	installPhase = ''
-		install -Dm755 $outFile $out/$outFile
-	'';
-}
+	out // {
+		name = "${pname}-${psuffix}-${version}";
+	}
