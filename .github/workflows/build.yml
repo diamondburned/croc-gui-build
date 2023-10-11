@@ -1,0 +1,39 @@
+name: Build croc-gui
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        target: [windows-amd64, linux-amd64, linux-arm64]
+    steps:
+      - uses: actions/checkout@v3
+
+      # Force cross-compilation.
+      # TODO: fix this by tricking Nix.
+      - run: export NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1
+
+      - uses: diamondburned/cache-install@main
+        with:
+          auto-optimise: true
+          instantiated-expression: import ./. {}
+
+      - id: build
+        run: |
+          output=$(nix-build -A $TARGET --no-out-link)/*
+          echo "output=$pout" >> $GITHUB_OUTPUT
+          name=$(nix-instantiate --eval --strict --json -A $TARGET.name | jq -r .)
+          echo "name=$name" >> $GITHUB_OUTPUT
+        env:
+          TARGET: ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.name }}
+          path: ${{ steps.build.outputs.output }}
