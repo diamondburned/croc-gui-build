@@ -59,10 +59,4 @@ assert stdenv.isLinux;
 			in
 				fyneDeps.buildInputs;
 	};
-	darwin-arm64 = crocgui {
-		GOOS = "darwin";
-		GOARCH = "arm64";
-		stdenv = pkgsCross.aarch64-darwin.stdenv;
-		outFile = "crocgui.tar.xz";
-	};
 }
