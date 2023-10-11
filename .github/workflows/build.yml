@@ -22,7 +22,7 @@ jobs:
       - uses: diamondburned/cache-install@main
         with:
           auto-optimise: true
-          instantiated-expression: import ./. {}
+          instantiated-expression: (import ./. {}).${{ matrix.target }}
 
       - id: build
         run: |
